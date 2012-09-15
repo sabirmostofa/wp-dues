@@ -23,6 +23,7 @@ class wpMembershipDues {
         //$this->set_meta();
         $this->table = $wpdb->prefix . 'wb_country_list';
         $this->image_dir = plugins_url('/', __FILE__) . 'images/';
+        $this->xml_file = plugins_url('/', __FILE__) . 'countries.xml';
         $this->data_url = 'http://api.worldbank.org/countries?per_page=400';
         //add_action('init', array($this, 'add_post_type'));
         add_action('admin_enqueue_scripts', array($this, 'admin_scripts'));
@@ -138,7 +139,7 @@ class wpMembershipDues {
 		`country_id` varchar(4) NOT NULL,		
 		`country` varchar(60)  NOT NULL,	
 		`income_level` varchar(6)  NOT NULL,	
-		`income_text` varchar(30)  NOT NULL,	
+		`income_text` varchar(60)  NOT NULL,	
 		 PRIMARY KEY (`id`),				 	
 		 key `country_id`(`country_id`)		 	
 		)";
@@ -150,7 +151,7 @@ class wpMembershipDues {
 
 
         // Adding primary ccountries to database
-		$this -> update_list();
+		$this -> update_list($this->xml_file);
     }
 
 // end of create_table

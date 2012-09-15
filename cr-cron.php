@@ -25,7 +25,7 @@ exit;
 
 global $wpMembershipDues, $wpdb;
 
-$wpMembershipDues->update_list();
+$wpMembershipDues->update_list($wpMembershipDues->data_url);
 
 //var_dump($all_cities);
 
