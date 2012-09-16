@@ -25,6 +25,12 @@ update_option('wp_wb_memberships', $mem_array);
 
 endif;
 
+// db update
+
+if(isset($_POST['update_submit'])){
+	$this->update_list($this->data_url);
+}
+
 
 //membeship update
 if( isset($_POST['membership-submit'] )):
@@ -147,7 +153,12 @@ endif;
 </form>
 
 <br/>
-<b>Membership Dues Calculator page: <a href="<?php echo $mem_page ?>"><?php echo $mem_page ?> </b>
+<b>Membership Dues Calculator page: <a href="<?php echo $mem_page ?>"><?php echo $mem_page ?> </a></b>
+<br/>
+<br/>
+<form action='' method='post'>
+<input class='button-primary' type='submit' name ='update_submit' value='update country list'/>
+</form>
 </div>
 
 <div style="clear:both;width:200px;heigth:20px"></div>

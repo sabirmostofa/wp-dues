@@ -6,7 +6,7 @@
   Description: Membership Dues calculator
   Version: 1.0
   Author: Sabirul Mostofa
-  Author URI: http://sabirul-mostofa.blogspot.com
+  Author URI: mailto:sabirmostofa@gmail.com
  */
 
 $wpMembershipDues = new wpMembershipDues();
@@ -34,6 +34,7 @@ class wpMembershipDues {
         add_filter('the_content', array($this, 'generate_content') );
 		add_action('wp_ajax_membership_remove', array($this, 'ajax_remove_membership'));
 		add_action('wp_ajax_get_dues', array($this, 'ajax_return_data'));
+		add_action('wp_ajax_nopriv_get_dues', array($this, 'ajax_return_data'));
         register_activation_hook(__FILE__, array($this, 'create_table'));
         register_activation_hook(__FILE__, array($this, 'init_cron'));
         register_activation_hook(__FILE__, array($this, 'create_page'));
@@ -93,7 +94,7 @@ class wpMembershipDues {
 		$extra .= "<option value='{$single->country_id}'> {$single->country} </option>";
 	}
 		
-	$extra .= "</select><br/><input type='button' id='get-due' value='Submit'/> <div id='mem_output'></div>";
+	$extra .= "</select><br/><input type='button' id='get-due' value='Submit'/> <br/> <div id='mem_output'></div><br/>";
 	return $content.$extra;
 		
 	
@@ -190,7 +191,9 @@ class wpMembershipDues {
 		global $wpdb;
 		//$wpdb->show_errors();
 		$dom = new DOMDocument();
-		@$dom -> load($file);
+		$data = $this->get_content_direct($file);
+		if($data[1] != 200 ) return;
+		$dom->loadXML ($data[0]);
 		$ns='http://www.worldbank.org';
 		$num = 0;
 		$countries = array();
@@ -247,7 +250,7 @@ class wpMembershipDues {
                 // wp_enqueue_script('wpvr_boxy_script', plugins_url('/' , __FILE__).'js/boxy/src/javascripts/jquery.boxy.js');
                 wp_enqueue_script('wbdues_front_script', plugins_url('/', __FILE__) . 'js/script_front.js');
                 wp_localize_script('wbdues_front_script', 'wpvrSettings', array(
-                    'ajaxurl' => admin_url('admin-ajax.php'),
+                    'ajaxurl' => home_url('/').'wp-admin/admin-ajax.php',
                     'pluginurl' => plugins_url('/', __FILE__),
                  
                 ));
