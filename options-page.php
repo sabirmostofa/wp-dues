@@ -11,9 +11,12 @@ if(!array_key_exists($key, $mem_array));
 $mem_array[$key]=array(
 	'name' => trim($_POST['name']),
 	'low_fee' => 0,
+	'low_early' => 0,
 	'medium_fee' => 0,
+	'medium_early' => 0,
 	'high_fee' => 0,
-	'earlybird' => 0 
+	'high_early' => 0
+
 );
 
 update_option('wp_wb_memberships', $mem_array);
@@ -61,7 +64,7 @@ endif;
 
 <div class="wrap">
     <form action ='' method='post'>
-        <h4>Set Earlybird Date </h4>
+        <h4>Earlybird Date </h4>
         <input style="width:20%" id='earlybird_date' type='text' name='earlybird_date' value="<?php echo $earlybird_date ?>"/>
         <br/> 
 		<br/>
@@ -82,16 +85,27 @@ endif;
     ?>
    <form method='post' action= ''> 
     <form>
-    <table class="widefat" >
+    <table class='widefat' style="text-align:center;width:70%" id="mem_table" >
         <thead>
             <tr>
 
                 <th> Remove</th>
-                <th> Membership </th>
-                <th> Low Income  </th>
-                <th> Lower Middle  </th>
-                <th> High+ Upper Middle  </th>
-                <th> Earlybird </th>
+                <th > Membership </th>
+                <th colspan="2"> Low Income  </th>
+                <th colspan="2"> Lower Middle  </th>
+                <th colspan="2"> High+ Upper Middle  </th>
+               
+            </tr>
+            <tr>
+            <td></td>
+            <td></td>
+            <td>Standard</td>
+            <td>EarlyBird</td>
+            <td>Standard</td>
+            <td>EarlyBird</td>
+            <td>Standard</td>
+            <td>EarlyBird</td>
+  
             </tr>
         </thead>
         <tbody>
@@ -104,9 +118,12 @@ endif;
                 <td><a href='#'> <img id='$key' src='$drop_image' /><a></td>
                  <td> <input type='text' name =\"members[{$key}][name]\" value=\"{$single[name]}\" /></td>
                  <td><input type='text' name =\"members[{$key}][low_fee]\" value=\"{$single[low_fee]}\" /></td>
+                 <td><input type='text' name =\"members[{$key}][low_early]\" value=\"{$single[low_early]}\" /></td>
                  <td><input type='text' name =\"members[{$key}][medium_fee]\" value=\"{$single[medium_fee]}\" /></td>
+                 <td><input type='text' name =\"members[{$key}][medium_early]\" value=\"{$single[medium_early]}\" /></td>
                  <td><input type='text' name =\"members[{$key}][high_fee]\" value=\"{$single[high_fee]}\" /></td>
-                 <td><input type='text' name =\"members[{$key}][earlybird]\" value=\"{$single[earlybird]}\" /></td>
+                 <td><input type='text' name =\"members[{$key}][high_early]\" value=\"{$single[high_early]}\" /></td>
+
                  </tr>";
                 ?>
 

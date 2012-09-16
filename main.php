@@ -3,7 +3,7 @@
 /*
   Plugin Name: WP-membership-dues
   Plugin URI: http://sabirul-mostofa.blogspot.com
-  Description: Generate Due status
+  Description: Membership Dues calculator
   Version: 1.0
   Author: Sabirul Mostofa
   Author URI: http://sabirul-mostofa.blogspot.com
@@ -81,7 +81,7 @@ class wpMembershipDues {
 	
 	sort($all_countries);
 */
-	$extra="Membership type: <select name='membership_types' id='mem_type'> ";
+	$extra="<br/>Membership type: <select name='membership_types' id='mem_type'> ";
 	foreach($mems as $key=>$val){
 		$extra .= "<option value='$key'> {$val[name]} </option>";
 	}
@@ -102,16 +102,18 @@ class wpMembershipDues {
 	function set_memberships(){
 		if(get_option('wp_wb_memberships'))
 			return;
-	    $names = array('Full Emeritus', 'Early-Career', 'Student');	    
+	    $names = array('Full', 'Emeritus', 'Early-Career', 'Student');	    
 	    $membership_array = array();
 	    
 	    foreach($names as $key => $value):
 			$membership_array[sanitize_title_with_dashes($value)] = array(
 					'name' => $value,
 					'low_fee' => 0,
+					'low_early' => 0,
 					'medium_fee' => 0,
+					'medium_early' => 0,
 					'high_fee' => 0,
-					'earlybird' => 0 
+					'high_early' => 0
 			);
 	    endforeach; 
 	    
@@ -137,27 +139,35 @@ class wpMembershipDues {
 		
 		$high_array= array( 'NOC', 'OEC', 'UMC');
 		
-		if(in_array($income_level, $high_array))
+		if(in_array($income_level, $high_array)){ 
 			$fee='high_fee';
-		elseif($income_level == 'LMC')
+			$early='high_early';
+		}
+		elseif($income_level == 'LMC'){
 			$fee ='medium_fee';
-		elseif($income_level == 'LIC')
+			$early='medium_early';
+		}
+		elseif($income_level == 'LIC'){
 			$fee ='low_fee';
+			$early='low_early';
+		}
 		
 		$to_fee = $mems[$mem_type][$fee];
 		
 		$mem_name = $mems[$mem_type]['name'];
 		
-		$data = "<b>Membership Type:</b>    $mem_name <br/>";
-		$data .= "<b>Country:</b>         $country_name <br/>";
-		$data .= "<b>Membership Due(1 year):</b> USD $to_fee <br/>";
-		
-		$early_date = get_option('wp_wb_earlybird_date');
+		$early_date = get_option('wp_wb_earlybird_date')?get_option('wp_wb_earlybird_date'): 'now';
 		
 		if( time() < strtotime($early_date)){
-			echo 'calculating earlybird';
+			$to_fee = $mems[$mem_type][$early];
 		}	
 		
+		
+		$data = "<b>Membership Type:</b>    $mem_name <br/>";
+		$data .= "<b>Country:</b>         $country_name <br/>";
+		$data .= "<b>Membership Due(1 year):</b> USD {$to_fee} <br/>";
+		
+
 		exit($data);
 	}
 	
