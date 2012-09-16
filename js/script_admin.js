@@ -9,8 +9,9 @@ jQuery(document).ready(function($){
     $('#earlybird_date').datepicker();
     
         $('.widefat img').bind('click',function(evt){
+			alert('clicked');
         evt.preventDefault();
-        var id =$(this).attr('class');
+        var id =$(this).attr('id');
         
         var self = $(this);
         
@@ -19,13 +20,13 @@ jQuery(document).ready(function($){
             url : ajaxurl,
             timeout : 5000,
             data : {
-                'action' : 'city_remove',
+                'action' : 'membership_remove',
                 'id' : id		  
             },			
-            success :  function(data){               
-                if(data==1){
+            success :  function(data){         
+
                  self.parent().parent().parent().hide('slow');   
-                }
+
             }
         })	//end of ajax	
         

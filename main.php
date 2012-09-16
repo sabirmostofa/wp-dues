@@ -32,7 +32,7 @@ class wpMembershipDues {
         add_action('admin_menu', array($this, 'CreateMenu'), 50);
         add_action('wp_mem_dues_cron', array($this, 'start_cron'));
         add_filter('the_content', array($this, 'generate_content') );
-       // add_action('wp_ajax_city_remove', array($this, 'ajax_remove_city'));
+		add_action('wp_ajax_membership_remove', array($this, 'ajax_remove_membership'));
         register_activation_hook(__FILE__, array($this, 'create_table'));
         register_activation_hook(__FILE__, array($this, 'init_cron'));
         register_activation_hook(__FILE__, array($this, 'create_page'));
@@ -91,6 +91,13 @@ class wpMembershipDues {
 		
 		
 		}
+	function ajax_remove_membership(){
+	$mems = get_option('wp_wb_memberships');
+	$key = $_POST['id'];
+	unset($mems[$key]);
+	echo update_option('wp_wb_memberships', $mems);
+	exit;
+	}
 	
     function OptionsPage() {
         include 'options-page.php';

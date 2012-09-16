@@ -1,6 +1,33 @@
 <?php
 global $wpdb;
 
+//Add new membership
+if(isset( $_POST['new-submit'] )):
+$key = sanitize_title_with_dashes(trim($_POST['name']));
+$mem_array = get_option('wp_wb_memberships');
+
+if(!array_key_exists($key, $mem_array));
+
+$mem_array[$key]=array(
+	'name' => trim($_POST['name']),
+	'low_fee' => 0,
+	'medium_fee' => 0,
+	'high_fee' => 0,
+	'earlybird' => 0 
+);
+
+update_option('wp_wb_memberships', $mem_array);
+
+
+
+endif;
+
+
+//membeship update
+if( isset($_POST['membership-submit'] )):
+update_option( 'wp_wb_memberships', $_POST['members'] );
+
+endif;
 
 
 //if setting submited
@@ -38,7 +65,7 @@ endif;
         <input style="width:20%" id='earlybird_date' type='text' name='earlybird_date' value="<?php echo $earlybird_date ?>"/>
         <br/> 
 		<br/>
-        <input class='button-primary' type='submit' name="earlybird-submit" value='Submit'/> 
+        <input class='button-primary' type='submit' name="earlybird-submit" value='Set Date'/> 
     </form>
 
     <!-- Form to add a new city and URL -->
@@ -46,41 +73,41 @@ endif;
     <br/>
     <br/>
     <h4>Memberships and Price</h4> 
-    <form action="" method ="post">
-        City Name:
-        <input style="width:40%" type='text' name='city_name' value=""/>
-        Craigslist Url:
-        <input style="width:40%" type='text' name='city_url' value=""/>
-        <input class='button-primary' type='submit' name="city-submit" value='Add city'/> 
-
-    </form>
-
-    <br/>
-    <br/>
 
     <?php
-    $all_cities = $wpdb->get_results(
-            "SELECT id, city_name, city_url 
-	FROM $this->table	
-	"
-    );
+    
+    $memberships = get_option('wp_wb_memberships') ;
+    $memberships = $memberships? $memberships: array();
 //var_dump($all_cities);
     ?>
+   <form method='post' action= ''> 
+    <form>
     <table class="widefat" >
         <thead>
             <tr>
 
                 <th> Remove</th>
-                <th> City Name</th>
-                <th>City URL </th>
+                <th> Membership </th>
+                <th> Low Income  </th>
+                <th> Lower Middle  </th>
+                <th> High+ Upper Middle  </th>
+                <th> Earlybird </th>
             </tr>
         </thead>
         <tbody>
 
             <?php
             $drop_image = $this->image_dir . 'b_drop.png';
-            foreach ($all_cities as $city):
-                echo "<tr><td><a href='#'> <img src='$drop_image' class='$city->id'/><a></td> <td> $city->city_name</td><td><a href='$city->city_url'>$city->city_url</a></td></tr>";
+            foreach($memberships as $key=>$single):
+                echo "
+                <tr>
+                <td><a href='#'> <img id='$key' src='$drop_image' /><a></td>
+                 <td> <input type='text' name =\"members[{$key}][name]\" value=\"{$single[name]}\" /></td>
+                 <td><input type='text' name =\"members[{$key}][low_fee]\" value=\"{$single[low_fee]}\" /></td>
+                 <td><input type='text' name =\"members[{$key}][medium_fee]\" value=\"{$single[medium_fee]}\" /></td>
+                 <td><input type='text' name =\"members[{$key}][high_fee]\" value=\"{$single[high_fee]}\" /></td>
+                 <td><input type='text' name =\"members[{$key}][earlybird]\" value=\"{$single[earlybird]}\" /></td>
+                 </tr>";
                 ?>
 
 
@@ -91,8 +118,16 @@ endif;
         </tbody>
 
 </table>
+<br/>
+<input type='submit' name='membership-submit' class='button-primary' value="update" />
+</form>
 
-
+<h4>Add a new membership </h4>
+<form method='post' action= ''>
+<b> Membership Name: </b>
+<input type='text' name='name' />
+<input type='submit' name='new-submit' class='button-primary' value="Add" />
+</form>
 </div>
 
 <div style="clear:both;width:200px;heigth:20px"></div>
