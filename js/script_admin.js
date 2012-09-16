@@ -6,6 +6,8 @@
 jQuery(document).ready(function($){
     
     
+    $('#earlybird_date').datepicker();
+    
         $('.widefat img').bind('click',function(evt){
         evt.preventDefault();
         var id =$(this).attr('class');

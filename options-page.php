@@ -4,14 +4,14 @@ global $wpdb;
 
 
 //if setting submited
-if (isset($_POST['main-submit'])):
+if (isset($_POST['earlybird-submit'])):
     $_POST = array_map(create_function('$a', 'return trim($a);'), $_POST);
-    extract($_POST);
-    update_option('rental-settings-var', array(
-        'max_post' => $max_post_per_day,
-    ));
+    update_option('wp_wb_earlybird_date',$_POST['earlybird_date']);
 
 endif;
+
+//set earlybird
+$earlybird_date = get_option('wp_wb_earlybird_date');
 
 
 
@@ -26,9 +26,7 @@ if (isset($_POST['city-submit'])):
 
 endif;
 
-if (get_option('rental-settings-var'))
-    extract(get_option('rental-settings-var'));
-$max_post = (isset($max_post)) ? $max_post : 10;
+
 
 
 
@@ -36,20 +34,18 @@ $max_post = (isset($max_post)) ? $max_post : 10;
 
 <div class="wrap">
     <form action ='' method='post'>
-        <h4>General Settings</h4>
-        Maximum renal listing  number to Import per city per day(Default: 10)
-        <br/>
-        <input style="width:40%" type='text' name='max_post_per_day' value="<?php echo $max_post ?>"/>
+        <h4>Set Earlybird Date </h4>
+        <input style="width:20%" id='earlybird_date' type='text' name='earlybird_date' value="<?php echo $earlybird_date ?>"/>
         <br/> 
-
-        <input class='button-primary' type='submit' name="main-submit" value='Submit'/> 
+		<br/>
+        <input class='button-primary' type='submit' name="earlybird-submit" value='Submit'/> 
     </form>
 
     <!-- Form to add a new city and URL -->
 
     <br/>
     <br/>
-    <h4>Add a new city</h4> 
+    <h4>Memberships and Price</h4> 
     <form action="" method ="post">
         City Name:
         <input style="width:40%" type='text' name='city_name' value=""/>

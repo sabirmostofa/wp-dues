@@ -31,16 +31,67 @@ class wpMembershipDues {
         add_action('wp_print_styles', array($this, 'front_css'));
         add_action('admin_menu', array($this, 'CreateMenu'), 50);
         add_action('wp_mem_dues_cron', array($this, 'start_cron'));
+        add_filter('the_content', array($this, 'generate_content') );
        // add_action('wp_ajax_city_remove', array($this, 'ajax_remove_city'));
         register_activation_hook(__FILE__, array($this, 'create_table'));
         register_activation_hook(__FILE__, array($this, 'init_cron'));
+        register_activation_hook(__FILE__, array($this, 'create_page'));
+        register_activation_hook(__FILE__, array($this, 'set_memberships'));
         register_deactivation_hook(__FILE__, array($this, 'deactivation_tasks'));
     }
 
     function CreateMenu() {
         add_submenu_page('options-general.php', 'Dues Settings', 'Dues Settings', 'activate_plugins', 'wpMembershipDues', array($this, 'OptionsPage'));
     }
-
+    
+    function create_page(){		
+		$page = array(
+		'post_type' => 'page',
+		'post_content' => '',
+		'post_title' => 'Membership Dues',
+		'post_author' => 1,
+		'post_status' => 'publish'
+		
+		);
+		
+		if(!get_option('wb_mem_dues_page_number')){
+			$page_no = wp_insert_post($page);
+			update_option('wb_mem_dues_page_number', $page_no);
+		}
+	}
+	
+	function generate_content($content){
+	global $post, $wpdb;
+	$mem_page = get_option('wb_mem_dues_page_number');
+	if($post->ID != $mem_page)
+		return $content;
+	
+	return 'test';
+		
+	
+	}
+	
+	function set_memberships(){
+		if(get_option('wp_wb_memberships'))
+			return;
+	    $names = array('Full Emeritus', 'Early-Career', 'Student');	    
+	    $membership_array = array();
+	    
+	    foreach($names as $key => $value):
+			$membership_array[sanitize_title_with_dashes($value)] = array(
+					'name' => $value,
+					'low_fee' => 0,
+					'medium_fee' => 0,
+					'high_fee' => 0,
+					'earlybird' => 0 
+			);
+	    endforeach; 
+	    
+		update_option('wp_wb_memberships', $membership_array);
+		
+		
+		}
+	
     function OptionsPage() {
         include 'options-page.php';
     }
@@ -101,9 +152,12 @@ class wpMembershipDues {
 	}
 
     function admin_scripts() {
+		wp_enqueue_script('jquery-ui-datepicker');
+        wp_enqueue_style('datepicker', plugins_url('css/ui-lightness/jquery-ui-1.8.16.custom.css', __FILE__));
         wp_enqueue_script('wbdues_admin_script', plugins_url('/', __FILE__) . 'js/script_admin.js');
         wp_register_style('wbdues_admin_css', plugins_url('/', __FILE__) . 'css/style_admin.css', false, '1.0.0');
         wp_enqueue_style('wbdues_admin_css');
+
     }
 
     function front_scripts() {
