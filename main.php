@@ -33,6 +33,7 @@ class wpMembershipDues {
         add_action('wp_mem_dues_cron', array($this, 'start_cron'));
         add_filter('the_content', array($this, 'generate_content') );
 		add_action('wp_ajax_membership_remove', array($this, 'ajax_remove_membership'));
+		add_action('wp_ajax_get_dues', array($this, 'ajax_return_data'));
         register_activation_hook(__FILE__, array($this, 'create_table'));
         register_activation_hook(__FILE__, array($this, 'init_cron'));
         register_activation_hook(__FILE__, array($this, 'create_page'));
@@ -66,7 +67,34 @@ class wpMembershipDues {
 	if($post->ID != $mem_page)
 		return $content;
 	
-	return 'test';
+	$mems = get_option('wp_wb_memberships');
+	$countries = $wpdb->get_results(
+	" select * from $this->table order by country ASC"
+	);
+
+/*
+	$all_countries = array();
+	foreach($countries as $single){
+		$key = $single->country_id;
+		$all_countries[$key] = $single->country;
+	}	
+	
+	sort($all_countries);
+*/
+	$extra="Membership type: <select name='membership_types' id='mem_type'> ";
+	foreach($mems as $key=>$val){
+		$extra .= "<option value='$key'> {$val[name]} </option>";
+	}
+	
+	$extra .= '</select><br/>';
+	$extra .="Select a Country: <select name='country_name' id='wb_country'> ";
+	
+	foreach($countries as $single){
+		$extra .= "<option value='{$single->country_id}'> {$single->country} </option>";
+	}
+		
+	$extra .= "</select><br/><input type='button' id='get-due' value='Submit'/> <div id='mem_output'></div>";
+	return $content.$extra;
 		
 	
 	}
@@ -99,6 +127,40 @@ class wpMembershipDues {
 	exit;
 	}
 	
+	function ajax_return_data(){
+		global $wpdb;
+		$mems = get_option('wp_wb_memberships');
+		$mem_type = trim($_POST['mem_type']);
+		$country = trim($_POST['country']);
+		$income_level = $wpdb->get_var( $wpdb->prepare(" select income_level from {$this->table} where country_id = '$country'  ") );
+		$country_name = $wpdb->get_var( $wpdb->prepare(" select country from {$this->table} where country_id = '$country'  ") );
+		
+		$high_array= array( 'NOC', 'OEC', 'UMC');
+		
+		if(in_array($income_level, $high_array))
+			$fee='high_fee';
+		elseif($income_level == 'LMC')
+			$fee ='medium_fee';
+		elseif($income_level == 'LIC')
+			$fee ='low_fee';
+		
+		$to_fee = $mems[$mem_type][$fee];
+		
+		$mem_name = $mems[$mem_type]['name'];
+		
+		$data = "<b>Membership Type:</b>    $mem_name <br/>";
+		$data .= "<b>Country:</b>         $country_name <br/>";
+		$data .= "<b>Membership Due(1 year):</b> USD $to_fee <br/>";
+		
+		$early_date = get_option('wp_wb_earlybird_date');
+		
+		if( time() < strtotime($early_date)){
+			echo 'calculating earlybird';
+		}	
+		
+		exit($data);
+	}
+	
     function OptionsPage() {
         include 'options-page.php';
     }
@@ -111,7 +173,7 @@ class wpMembershipDues {
 
     function init_cron() {
         if (!wp_get_schedule('wp_mem_dues_cron'))
-            wp_schedule_event(time(), 'hourly', 'wp_mem_dues_cron');
+            wp_schedule_event(time(), 'daily', 'wp_mem_dues_cron');
     }
     
     function update_list($file = 'countries.xml'){
@@ -174,6 +236,11 @@ class wpMembershipDues {
             if (!(is_admin())) {
                 // wp_enqueue_script('wpvr_boxy_script', plugins_url('/' , __FILE__).'js/boxy/src/javascripts/jquery.boxy.js');
                 wp_enqueue_script('wbdues_front_script', plugins_url('/', __FILE__) . 'js/script_front.js');
+                wp_localize_script('wbdues_front_script', 'wpvrSettings', array(
+                    'ajaxurl' => admin_url('admin-ajax.php'),
+                    'pluginurl' => plugins_url('/', __FILE__),
+                 
+                ));
             }
         }
     }

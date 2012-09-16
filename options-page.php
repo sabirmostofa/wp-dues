@@ -1,6 +1,6 @@
 <?php
 global $wpdb;
-
+$mem_page  = get_permalink(get_option('wb_mem_dues_page_number'));
 //Add new membership
 if(isset( $_POST['new-submit'] )):
 $key = sanitize_title_with_dashes(trim($_POST['name']));
@@ -128,6 +128,9 @@ endif;
 <input type='text' name='name' />
 <input type='submit' name='new-submit' class='button-primary' value="Add" />
 </form>
+
+<br/>
+<b>Membership Dues Calculator page: <a href="<?php echo $mem_page ?>"><?php echo $mem_page ?> </b>
 </div>
 
 <div style="clear:both;width:200px;heigth:20px"></div>
